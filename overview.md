@@ -54,31 +54,51 @@ errors.count()
 
 ![](/assets/import1.png)
 
-
-
 ### 部署（Deployment view）
 
+当有Actioin作用于某RDD时，该action会作为一个job被提交。
+
+在提交的过程中，DAGScheduler模块接入运算，计算RDD之间的依赖关系。RDD之间的依赖关系形成了DAG.
+
+每一个JOB被划分为多个stage，划分stage的一个主要依据是**当前计算因子的输入是否确定**。如果是则将其分在同一个Stae
+
+,避免多个stage之间的消息传递开销。
+
+当Stage被提交之后，由taskScheduler来根据stage计算所需要的task，并将task提交到对应的worker。
+
+Spark支持以下几种部署模式1）standlone 2）Mesos 3） YARN。这些**部署模式**将作为taskScheduler的**初始化参数**。
+
+![](/assets/import2.png)
 
 
 
+### RDD接口（RDD Interface）
+
+RDD由以下几个主要部分组成
+
+    1. partitions - partition集合，一个RDD中有多少data partition
+
+    2. dependencis - RDD依赖关系
+
+    3. compute\(partition\) - 对于给定的数据集，需要做的计算
+
+    4. preferredLocations - 对于data partition的位置偏好
+
+    5. partitioner - 对于计算出来的数据结果如何分发
+
+### 缓存机制\(caching\) {#8}
+
+RDD的中间计算结果可以被缓存起来，缓存先选Memory,如果Memory不够的话，将会被写入到磁盘中。
+
+根据LRU\(last-recent update\)来决定哪先内容继续保存在内存，哪些保存到磁盘
 
 
 
+### 容错性\(Fault-tolerant\) {#9}
 
+从最初始的RDD到衍生出来的最后一个RDD，中间要经过一系列的处理。那么如何处理中间环节出现错误的场景呢？
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+Spark提供的解决方案是只对失效的data partition进行事件重演，而无须对整个数据全集进行事件重演，这样可以大大加快场景恢复的开销。
 
 
 
