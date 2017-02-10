@@ -70,21 +70,19 @@ Spark支持以下几种部署模式1）standlone 2）Mesos 3） YARN。这些**�
 
 ![](/assets/import2.png)
 
-
-
 ### RDD接口（RDD Interface）
 
 RDD由以下几个主要部分组成
 
-    1. partitions - partition集合，一个RDD中有多少data partition
+1. partitions - partition集合，一个RDD中有多少data partition
 
-    2. dependencis - RDD依赖关系
+2. dependencis - RDD依赖关系
 
-    3. compute\(partition\) - 对于给定的数据集，需要做的计算
+3. compute\(partition\) - 对于给定的数据集，需要做的计算
 
-    4. preferredLocations - 对于data partition的位置偏好
+4. preferredLocations - 对于data partition的位置偏好
 
-    5. partitioner - 对于计算出来的数据结果如何分发
+5. partitioner - 对于计算出来的数据结果如何分发
 
 ### 缓存机制\(caching\) {#8}
 
@@ -92,37 +90,31 @@ RDD的中间计算结果可以被缓存起来，缓存先选Memory,如果Memory�
 
 根据LRU\(last-recent update\)来决定哪先内容继续保存在内存，哪些保存到磁盘
 
-
-
 ### 容错性\(Fault-tolerant\) {#9}
 
-从最初始的RDD到衍生出来的最后一个RDD，中间要经过一系列的处理。那么如何处理中间环节出现错误的场景呢？
+task运行咋icluster之上，除了Spark自身提供的standalone部署模式之外，spark还支持YARN和Mesos
 
-Spark提供的解决方案是只对失效的data partition进行事件重演，而无须对整个数据全集进行事件重演，这样可以大大加快场景恢复的开销。
+Yarn来负责计算资源的调度和监控，根据监控结果重启失效的task或者是重新distributed task，一旦有新的ode加入cluster的话。
 
+这一部分的内容需要参看yarn的文档。
 
+### 小结
 
+在源码阅读时，需要重点把握以下两大主线。
 
+1. 静态view即RDD，transformation and action
 
-
-
-
-
-
-
-
+2. 动态view即life of a job，每一个job又分为多个stage，每一个stage又包含多个rdd及transformation，这些stage又是如何映射成为task被distributed到cluster中。
 
 
 
+\#\# 参考资料（reference）
 
+1. Introduction to Spark Internals http://files.meetup.com/3138542/dev-meetup-dec-2012.pptx
 
+2. Resilient Distributed Datasets: A Fault-tolerant Abstraction for In-Memory Cluster Computing  https://www.usenix.org/system/files/.../ns
 
-
-
-
-
-
-
+3. \[许鹏-Apache Spark源码走读（一）Spark论文阅读笔记&Job提交与运行-\]https://yq.aliyun.com/articles/60612?spm=5176.100240.searchblog.33.pl6ydj
 
 
 
