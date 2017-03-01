@@ -5,7 +5,7 @@
 * [1. Overview](overview.md)
 * [2. Scheduler](spark-scheduler.md)
   * [. SubmitJob](spark-scheduler/submitjob.md)
-  * . DAGScheduler
+  * [. DAGScheduler](spark-scheduler/.-dagscheduler.md)
   * . TaskScheduler
 * [3. Shuffle](shuffle.md)
 * [4. Storage](storage.md)
