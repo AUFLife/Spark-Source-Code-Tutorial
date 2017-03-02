@@ -42,36 +42,35 @@ job的生成的简单流程如下：
 8. LocalBackend收到TaskSchedulerImpl传递进来的ReceiveOffers事件 =&gt;
 9. executor.launchTask -&gt; 实际上声明了一个ConcurrHashMap来存放taskId和新创建的TaskRunner =&gt;
     TaskRunner.run\(\)
-10. receiveOffers-&gt;executor.launchTask-&gt;TaskRunner.run
+10. receiveOffers-&gt;executor.launchTask-&gt;TaskRunner.run  
     代码片段executor.lauchTask
 
     ```
     def launchTask(context: ExecutorBackend, taskId: Long, serializedTask: ByteBuffer) {
-    
+
     val tr = new TaskRunner(context, taskId, serializedTask)
         runningTasks.put(taskId, tr)
         threadPool.execute(tr)
       }
-
     ```
 
     说了这么一大通，也就是讲最终的逻辑处理切切实实是发生在TaskRunner这么一个executor之内。
 
     运算结果是包装成为MapStatus然后通过一系列的内部消息传递，反馈到DAGScheduler，这一个消息传递路径不是过于复杂，有兴趣可以自行勾勒。
 
-
-
 ShuffleMapTask，ResultTask计算结果的传递
 
- 1. ShuffleMapTask将计算的状态（注意不是具体的数据）包装为MapStatus返回给DAGScheduler
+1. ShuffleMapTask将计算的状态（注意不是具体的数据）包装为MapStatus返回给DAGScheduler
 
- 2. DAGScheduler将MapStatus保存到MapOutputTrackerMaster中
+2. DAGScheduler将MapStatus保存到MapOutputTrackerMaster中
 
- 3. ResultTask在执行到ShuffleRDD时会调用BlockStoreShuffle的fetch方法
+3. ResultTask在执行到ShuffleRDD时会调用BlockStoreShuffle的fetch方法
 
- 3.ResultTask在执行到ShuffleRDD时会调用BlockStoreShffleTetcher的fetch方法获取数据。
+   3.ResultTask在执行到ShuffleRDD时会调用BlockStoreShffleTetcher的fetch方法获取数据。
 
- 	1. 第一件事就是咨询MapOutputTrackerMaster所要取的数据的location
+   1. 第一件事就是咨询MapOutputTrackerMaster所要取的数据的location
 
- 	2. 根据返回的结果调用BlockManager.getMultiple获取真正的数据
+   2. 根据返回的结果调用BlockManager.getMultiple获取真正的数据
+
+
 
