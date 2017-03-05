@@ -18,6 +18,13 @@
  *  - When adding a new data structure, update `DAGSchedulerSuite.assertDataStructuresEmpty` to
  *    include the new structure. This will help to catch memory leaks.
  */
+ // 最高等级的调度层，用于实现对Stage的划分的调度。
+ // 该类为每个job计算生成Stage的有向无环图，并记录那些RDD, Stage被物化，并且在每个Stage内产生一些列的task，然后提交Stages封装成TaskSet传递到executor上去执行
+ // 接受用户提交的stages，
+ // 决定每个task运行的最佳位置（任务在数据所在的节点上），结合当前缓存的状态，将TaskSet提交给TaskScheduler
+ // 重新提交shuffle输出丢失的的stage给TaskScheduler
+ // 注意！一个stage的内部错误不是由于shuffle造成的，DAGSchduler是不管的，有TaskScheduler负责尝试重新提交每个task，在整个stage被取消之前。
+
 private[spark]
 class DAGScheduler(
     private[scheduler] val sc: SparkContext,
