@@ -18,18 +18,18 @@
  *  - When adding a new data structure, update `DAGSchedulerSuite.assertDataStructuresEmpty` to
  *    include the new structure. This will help to catch memory leaks.
  */
- // 最高等级的调度层，用于实现对Stage的划分的调度。
- // 该类为每个job计算生成Stage的有向无环图，并记录那些RDD, Stage被物化，并且在每个Stage内产生一些列的task，然后提交Stages封装成TaskSet传递到executor上去执行
- // 接受用户提交的stages，
- // 决定每个task运行的最佳位置（任务在数据所在的节点上），结合当前缓存的状态，将TaskSet提交给TaskScheduler
- // 重新提交shuffle输出丢失的的stage给TaskScheduler
+ // 最高等级的调度层，用于实现对Stage的划分的调度
  // 注意！一个stage的内部错误不是由于shuffle造成的，DAGSchduler是不管的，有TaskScheduler负责尝试重新提交每个task，在整个stage被取消之前。
+// 1. 接受用户提交的Job，为每个job计算生成Stage的有向无环图并将Jbo划分为不同的Stage，记录哪些RDD,Stage被物化，并且在每一个Stage内部产生一系列Task，并封装成TaskSet传递给TaskScheduler去运行。
+// 2. 决定每个task运行的最佳位置（任务在数据所在的节点上），并结合当前缓存状态，将TaskSet提交给TaskScheduler
+// 3. 重新提交Shuffle输出丢失的Stage给TaskScheduler（注：一个Stage内部的错误不是有Shuffle造成的，DAGScheduler是不管的，而是由TaskScheduler负责尝试重新提交task执行)
+
 
 private[spark]
 class DAGScheduler(
     private[scheduler] val sc: SparkContext,
-    private[scheduler] val taskScheduler: TaskScheduler,
-    listenerBus: LiveListenerBus,
+    private[scheduler] val taskScheduler: TaskScheduler,    // 绑定的TaskScheduler
+    listenerBus: LiveListenerBus,                           //DAGScheduler本身也提供SparkListenerBus, 便于其他模块listen DAGScheduler
     mapOutputTracker: MapOutputTrackerMaster,
     blockManagerMaster: BlockManagerMaster,
     env: SparkEnv,
@@ -121,6 +121,7 @@ class DAGScheduler(
   /**
    * Called by the TaskSetManager to report task's starting.
    */
+    // 并且实现各种TaskSchedulerListener的接口, 以便于TaskScheduler在状态发生变化时调用
   def taskStarted(task: Task[_], taskInfo: TaskInfo) {
     eventProcessLoop.post(BeginEvent(task, taskInfo))
   }
