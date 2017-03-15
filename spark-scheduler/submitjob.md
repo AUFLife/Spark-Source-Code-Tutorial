@@ -19,11 +19,11 @@ Spark布置环境中组件构成如下图所示。
 
 job的生成的简单流程如下：
 
-1. 首先应用程序创建SparkContext的实例，如实例为sc
-2. 利用SparkContext 的实例来创建生成RDD
-3. 经过一连串的transformation操作，原始的RDD转换成其它类型的RDD
-4. 当action作用于转换之后的RDD时，会调用SparkContext的runJob方法
-5. sc.runJobd的调用是后面一连串的反应的起点，关键性的跃变就发生在此处
+* 首先应用程序创建SparkContext的实例，如实例为sc
+* 利用SparkContext 的实例来创建生成RDD
+* 经过一连串的transformation操作，原始的RDD转换成其它类型的RDD
+* 当action作用于转换之后的RDD时，会调用SparkContext的runJob方法
+* sc.runJobd的调用是后面一连串的反应的起点，关键性的跃变就发生在此处
 
 调用过程大致如下：
 
