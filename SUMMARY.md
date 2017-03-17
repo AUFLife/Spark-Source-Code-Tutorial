@@ -10,6 +10,7 @@
     * [DAGScheduler-Source](spark-scheduler/.-dagscheduler/dagscheduler-source.md)
   * [.4 TaskScheduler](spark-scheduler/.-taskscheduler.md)
     * [TaskScheduler-Source](spark-scheduler/.-taskscheduler/taskscheduler-source.md)
+  * [Scheduler Strategy](scheduler-strategy.md)
 * [3. Shuffle](shuffle.md)
 * [4. Storage](storage.md)
 * [5. I/O](io.md)
