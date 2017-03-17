@@ -50,13 +50,15 @@ job的生成的简单流程如下：
     ```
     def launchTask(context: ExecutorBackend, taskId: Long, serializedTask: ByteBuffer) {
 
-    val tr = new TaskRunner(context, taskId, serializedTask)
+      val tr = new TaskRunner(context, taskId, serializedTask)
         runningTasks.put(taskId, tr)
         threadPool.execute(tr)
      }
+    }
     ```
   * SparkDeploySchedulerBackend：见TaskScheduler
   * YarnSchedulerBackend: 见TaskScheduler
+
 
 说了这么一大通，也就是讲最终的逻辑处理切切实实是发生在TaskRunner这么一个executor之内。
 
