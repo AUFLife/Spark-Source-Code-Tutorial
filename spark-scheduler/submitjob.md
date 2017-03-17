@@ -58,10 +58,9 @@ job的生成的简单流程如下：
   * SparkDeploySchedulerBackend：见TaskScheduler
   * YarnSchedulerBackend: 见TaskScheduler
 
+说了这么一大通，也就是讲最终的逻辑处理切切实实是发生在TaskRunner这么一个executor之内。
 
-    说了这么一大通，也就是讲最终的逻辑处理切切实实是发生在TaskRunner这么一个executor之内。
-
-    运算结果是包装成为MapStatus然后通过一系列的内部消息传递，反馈到DAGScheduler，这一个消息传递路径不是过于复杂，有兴趣可以自行勾勒。 
+运算结果是包装成为MapStatus然后通过一系列的内部消息传递，反馈到DAGScheduler，这一个消息传递路径不是过于复杂，有兴趣可以自行勾勒。 
 
 
 ---
