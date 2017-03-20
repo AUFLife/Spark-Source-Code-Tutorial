@@ -86,4 +86,6 @@ ClientEndpoint
 ```
 
 
+## 参考资料（reference）
+[Spark源码系列（四）图解作业生命周期](http://www.cnblogs.com/cenyuhai/p/3801167.html)
 
