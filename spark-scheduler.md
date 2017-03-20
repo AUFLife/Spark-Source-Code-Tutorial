@@ -24,7 +24,7 @@ val command = Command("org.apache.spark.executor.CoarseGrainedExecutorBackend",
 ```
 
 maxCores是由参数spark.cores.max来指定的，executorMemoy是由spark.executor.memory指定的。  
-AppClient启动之后就会去向Master注册Applicatoin了，后面的过程我用图来表达
+AppClient启动之后就会去向Master注册Applicatoin了，后面的过程用图来表达
 
 ![](/assets/230152156429883.png)
 
