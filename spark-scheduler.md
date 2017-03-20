@@ -28,15 +28,6 @@ AppClient启动之后就会去向Master注册Applicatoin了（`AppClient中的on
 
 ![](/assets/230152156429883.png)
 
-Driver ->RegisterApplication		RegistedApplication <- Master
-															 |
-														LaunchExecutor
-
-
-													 ExecutorStateChange
-															 ^
-															 |
-ExecutorBackend 		 					               Worker
 
 上面的图中涉及到了三方通信，具体过程如下：(Driver, Master, Worker)
 * Driver通过AppClient向Master发送了RegisterApplication消息来注册AppMaster，Master在接收消息并处理后湖返回RegisteredApplication消息通知Driver注册成功，`Driver的接收还是AppClient`
