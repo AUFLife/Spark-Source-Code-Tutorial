@@ -32,7 +32,7 @@ AppClient启动之后就会去向Master注册Applicatoin了（`AppClient中的on
 
 * Driver通过AppClient向Master发送了RegisterApplication消息来注册AppMaster，Master在接收消息并处理后湖返回RegisteredApplication消息通知Driver注册成功，**Driver的接收还是AppClient**
 
-* Master接收RegisterApplication会触发调度过程，在资源充足的情况下会向Work和Driver**分别发送**LaunchExecutor、ExecutorAdd消息\(startExecutorOnWorkers\)
+* Master接收RegisterApplication会触发调度过程，在资源充足的情况下会向Work和Driver**分别发送**LaunchExecutor、ExecutorAdd消息\(**startExecutorOnWorkers**\)
 
 * Worker接收到LaunchExecutor消息之后，会执行消息中携带的命令，执行【CoarseGrainedExecutorBackend类】（没找到呢）（图中以它继承的接口ExecutorBackend代替），执行完毕后会发送ExecutorStateChange消息给Master
 
@@ -40,7 +40,7 @@ AppClient启动之后就会去向Master注册Applicatoin了（`AppClient中的on
 
 * Driver中的AppClient接收到Master发过来的ExecutorAdd和ExecutorUpdated后进行相应处理
 
-* 启动之后的CoraseGrainedBackend（A pluggable interface used by the Executor to send updates to the cluster scheduler.）的onStart方法中会向Driver发送RegisterExecutor消息
+* 启动之后的CoraseGrainedBackend（**A pluggable interface used by the Executor to send updates to the cluster scheduler.**）的onStart方法中会向Driver发送RegisterExecutor消息
 
 * Driver中的SparkdeploySchedulerBackend（具体代码在CoarseGrainedSchedulerBackend里面），接收到RegisterExecutor消息，回复注册成功消息RegisterExecutor给ExecutorBackend，并且立马准备给它发送任务
 
@@ -50,7 +50,7 @@ AppClient启动之后就会去向Master注册Applicatoin了（`AppClient中的on
 
 上面讲完了整个注册Application的过程之后，其中比较重要的地方是它的调度模块，它是怎么调度的？这也是前面为什么提到maxCores和executorMemory的原因
 
-### 
+
 
 ### 说明
 
