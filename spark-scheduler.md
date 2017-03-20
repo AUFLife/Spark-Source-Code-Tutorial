@@ -11,7 +11,7 @@ SparkContext实例化之后，在内部实例化两个很重要的类，DAGSched
 在standlone的模式下，TaskScheduler的实现类是TaskSchedulerImpl，在初始化它的时候SparkContext会传入一个SparkDeploySchedulerBackend。  
 在SparkDeploySchedulerBackend的start方法里启动了一个AppClient
 
-```
+```Scala
 val command = Command("org.apache.spark.executor.CoarseGrainedExecutorBackend",
       args, sc.executorEnvs, classPathEntries ++ testingClassPath, libraryPathEntries, javaOpts)
     val appUIAddress = sc.ui.map(_.appUIAddress).getOrElse("")
@@ -50,8 +50,6 @@ AppClient启动之后就会去向Master注册Applicatoin了（`AppClient中的on
 
 上面讲完了整个注册Application的过程之后，其中比较重要的地方是它的调度模块，它是怎么调度的？这也是前面为什么提到maxCores和executorMemory的原因
 
-
-
 ### 说明
 
 CoarseGrainedSchedulerBackend with SchedulerBackend ：A scheduler backend that waits for coarse grained executors to connect to it through Akka. This backend holds onto each executor for the duration of the Spark job rather than relinquishing executors whenever a task is done and asking the scheduler to launch a ne wexecutor for each new task. Executors may be launched in a variey of ways, such as Mesos tasks for the coarse-grained Mesos mode or standalone processes for Spark's standalone deploy mode\(spark.deploy.\*\)  
@@ -67,23 +65,25 @@ ClientEndpoint
 
 #### receive和receiveAndReply的解释
 
-      /**
-       * Process messages from [[RpcEndpointRef.send]] or [[RpcCallContext.reply)]]. If receiving a
-       * unmatched message, [[SparkException]] will be thrown and sent to `onError`.
-       */
-       // 处理来自RpcEndpointRef.send或RpcCallContext.reply. 如果接收一个不匹配的信息，将会抛出SparkExeception并发送onError消息
-      def receive: PartialFunction[Any, Unit] = {
-        case _ => throw new SparkException(self + " does not implement 'receive'")
-      }
+```Scala
+  /**
+   * Process messages from [[RpcEndpointRef.send]] or [[RpcCallContext.reply)]]. If receiving a
+   * unmatched message, [[SparkException]] will be thrown and sent to `onError`.
+   */
+   // 处理来自RpcEndpointRef.send或RpcCallContext.reply. 如果接收一个不匹配的信息，将会抛出SparkExeception并发送onError消息
+  def receive: PartialFunction[Any, Unit] = {
+    case _ => throw new SparkException(self + " does not implement 'receive'")
+  }
 
-      /**
-       * Process messages from [[RpcEndpointRef.ask]]. If receiving a unmatched message,
-       * [[SparkException]] will be thrown and sent to `onError`.
-       */
-       // 处理来自RpcEndpointRef.ask. 如果接收一个不匹配的信息，将会抛出SparkExeception并发送onError消息
-      def receiveAndReply(context: RpcCallContext): PartialFunction[Any, Unit] = {
-        case _ => context.sendFailure(new SparkException(self + " won't reply anything"))
-      }
+  /**
+   * Process messages from [[RpcEndpointRef.ask]]. If receiving a unmatched message,
+   * [[SparkException]] will be thrown and sent to `onError`.
+   */
+   // 处理来自RpcEndpointRef.ask. 如果接收一个不匹配的信息，将会抛出SparkExeception并发送onError消息
+  def receiveAndReply(context: RpcCallContext): PartialFunction[Any, Unit] = {
+    case _ => context.sendFailure(new SparkException(self + " won't reply anything"))
+  }
+```
 
 
 
