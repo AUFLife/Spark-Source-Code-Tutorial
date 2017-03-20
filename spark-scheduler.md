@@ -32,7 +32,7 @@ AppClient启动之后就会去向Master注册Applicatoin了（`AppClient中的on
 上面的图中涉及到了三方通信，具体过程如下：(Driver, Master, Worker)
 * Driver通过AppClient向Master发送了RegisterApplication消息来注册AppMaster，Master在接收消息并处理后湖返回RegisteredApplication消息通知Driver注册成功，Driver的接收还是AppClient
 
-* Master接收RegisterApplication会触发调度过程，在资源充足的情况下会向Work和Driver`分别发送`LaunchExecutor、ExecutorAdd消息(startExecutorOnWorkers)
+* Master接收RegisterApplication会触发调度过程，在资源充足的情况下会向Work和Driver分别发送LaunchExecutor、ExecutorAdd消息(startExecutorOnWorkers)
 
 * Worker接收到LaunchExecutor消息之后，会执行消息中携带的命令，执行【CoarseGrainedExecutorBackend类】（没找到呢）（图中以它继承的接口ExecutorBackend代替），执行完毕后会发送ExecutorStateChange消息给Master
 
