@@ -108,13 +108,13 @@ Yarn来负责计算资源的调度和监控，根据监控结果重启失效的t
 
 
 
-\#\# 参考资料（reference）
+## 参考资料（reference）
 
-1. [Introduction to Spark Internals](http://files.meetup.com/3138542/dev-meetup-dec-2012.pptx)
+* [Introduction to Spark Internals](http://files.meetup.com/3138542/dev-meetup-dec-2012.pptx)
 
-2. [Resilient Distributed Datasets: A Fault-tolerant Abstraction for In-Memory Cluster Computing](https://www.usenix.org/system/files/.../ns)
+* [Resilient Distributed Datasets: A Fault-tolerant Abstraction for In-Memory Cluster Computing](https://www.usenix.org/system/files/.../ns)
 
-3. [许鹏-Apache Spark源码走读（一）Spark论文阅读笔记&Job提交与运行-](https://yq.aliyun.com/articles/60612?spm=5176.100240.searchblog.33.pl6ydj)
+* [许鹏-Apache Spark源码走读（一）Spark论文阅读笔记&Job提交与运行-](https://yq.aliyun.com/articles/60612?spm=5176.100240.searchblog.33.pl6ydj)
 
 
 
