@@ -80,6 +80,7 @@ ClientEndpoint
 ---
 
 #### receive和receiveAndReply的解释
+ ```
   /**
    * Process messages from [[RpcEndpointRef.send]] or [[RpcCallContext.reply)]]. If receiving a
    * unmatched message, [[SparkException]] will be thrown and sent to `onError`.
@@ -97,3 +98,5 @@ ClientEndpoint
   def receiveAndReply(context: RpcCallContext): PartialFunction[Any, Unit] = {
     case _ => context.sendFailure(new SparkException(self + " won't reply anything"))
   }
+
+ ```
