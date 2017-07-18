@@ -29,12 +29,12 @@ job的生成的简单流程如下：
 
 * sc.runJob -&gt; dagScheduler.runJob -&gt; submitJob
    * SparkContext.runJob\(rdd, cleanedFunc, partitions, callSite, resultHandler, localProperties.get\),首先获取rdd的partitions.length，来得到finalRDD中应该存在的partition的个数和类型：Array\[Partition\]
-   * cleanedFunc是partition经过闭包清理后的结果，这样可以被序列化后传递给不同的节点的task.  
-* dagScheduler.runJob -&gt; submitJob 
+   * cleanedFunc是partition经过闭包清理后的结果，这样可以被序列化后传递给不同的节点的task.
+* dagScheduler.runJob -&gt; submitJob
    首先获取一个jobId，并返回JobWaiter对象用于监听job的执行状态（Submit a job to the job scheduler and get a JobWaiter object back. The JobWaiter object can be use to block until the job finishes executing or can be used to cancen the job）然后再次包装func。
 * DAGSchedulerEventProcessLoop.onReceive
    * 引入事件机制DAGSchedulerEventProcessLoop\(this\)实例
-* DAGScheduler.handleJobSubmitted\(\) 
+* DAGScheduler.handleJobSubmitted\(\)
    * job到Staged的转换，生成了findStage并提交运行，关键是调用submitStage
 * dagScheduler.submitStage -&gt; 计算Stage之间的依赖关系，依赖关系分为宽依赖和窄依赖。并且会递归提交缺失依赖的父Stage；
 * dagScheduler.submitMissingTasks -&gt; 如果计算中发现当前Stage1父依赖是可用的，并且我们现在可以调用它的tasks；
@@ -44,7 +44,7 @@ job的生成的简单流程如下：
     executor.launchTask -&gt; 实际上声明了一个ConcurrHashMap来存放taskId和新创建的TaskRunner =&gt;
       TaskRunner.run\(\)
 
-    receiveOffers-&gt;executor.launchTask-&gt;TaskRunner.run  
+    receiveOffers-&gt;executor.launchTask-&gt;TaskRunner.run
     代码片段executor.lauchTask
 
     ```
@@ -62,7 +62,7 @@ job的生成的简单流程如下：
 
 说了这么一大通，也就是讲最终的逻辑处理切切实实是发生在TaskRunner这么一个executor之内。
 
-运算结果是包装成为MapStatus然后通过一系列的内部消息传递，反馈到DAGScheduler，这一个消息传递路径不是过于复杂，有兴趣可以自行勾勒。 
+运算结果是包装成为MapStatus然后通过一系列的内部消息传递，反馈到DAGScheduler，这一个消息传递路径不是过于复杂，有兴趣可以自行勾勒。
 
 
 ---

@@ -4,11 +4,11 @@
 
 ![](/assets/212359414114202.png)
 
-首先回顾一下这个图，Driver Program是我们写的应用程序，它的核心是SparkContext，从api的使用角度，RDD都必须通过它来获得。  
-下面讲一下它与其它组件是如何交互的。  
-Driver向Master注册Application过程  
-SparkContext实例化之后，在内部实例化两个很重要的类，DAGScheduler和TaskScheduler  
-在standlone的模式下，TaskScheduler的实现类是TaskSchedulerImpl，在初始化它的时候SparkContext会传入一个SparkDeploySchedulerBackend。  
+首先回顾一下这个图，Driver Program是我们写的应用程序，它的核心是SparkContext，从api的使用角度，RDD都必须通过它来获得。
+下面讲一下它与其它组件是如何交互的。
+Driver向Master注册Application过程
+SparkContext实例化之后，在内部实例化两个很重要的类，DAGScheduler和TaskScheduler
+在standlone的模式下，TaskScheduler的实现类是TaskSchedulerImpl，在初始化它的时候SparkContext会传入一个SparkDeploySchedulerBackend。
 在SparkDeploySchedulerBackend的start方法里启动了一个AppClient
 
 ```Scala
@@ -23,7 +23,7 @@ val command = Command("org.apache.spark.executor.CoarseGrainedExecutorBackend",
     waitForRegistration()
 ```
 
-maxCores是由参数spark.cores.max来指定的，executorMemoy是由spark.executor.memory指定的。  
+maxCores是由参数spark.cores.max来指定的，executorMemoy是由spark.executor.memory指定的。
 AppClient启动之后就会去向Master注册Applicatoin了（`AppClient中的onStart方法`），后面的过程用下面的图来表达
 
 ![](/assets/230152156429883.png)
@@ -52,13 +52,13 @@ AppClient启动之后就会去向Master注册Applicatoin了（`AppClient中的on
 
 ### 说明
 
-CoarseGrainedSchedulerBackend with SchedulerBackend ：A scheduler backend that waits for coarse grained executors to connect to it through Akka. This backend holds onto each executor for the duration of the Spark job rather than relinquishing executors whenever a task is done and asking the scheduler to launch a ne wexecutor for each new task. Executors may be launched in a variey of ways, such as Mesos tasks for the coarse-grained Mesos mode or standalone processes for Spark's standalone deploy mode\(spark.deploy.\*\)  
- 一个schduler后端程序用于等待通过使用Akka多个粗粒度executors间的连接.'  
-这个后端程序紧紧保持了每个Sparkjob的持续使用每个executor，而不是放弃executos，每当一个task完成了并且请求调度启动一个新的Executor为每个新task  
+CoarseGrainedSchedulerBackend with SchedulerBackend ：A scheduler backend that waits for coarse grained executors to connect to it through Akka. This backend holds onto each executor for the duration of the Spark job rather than relinquishing executors whenever a task is done and asking the scheduler to launch a ne wexecutor for each new task. Executors may be launched in a variey of ways, such as Mesos tasks for the coarse-grained Mesos mode or standalone processes for Spark's standalone deploy mode\(spark.deploy.\*\)
+ 一个schduler后端程序用于等待通过使用Akka多个粗粒度executors间的连接.'
+这个后端程序紧紧保持了每个Sparkjob的持续使用每个executor，而不是放弃executos，每当一个task完成了并且请求调度启动一个新的Executor为每个新task
 Executors也许被启动以多种方式，例如Mesos模式下的粗粒度任务或者Spark standlone模式下的单机处理
 
-CoarseGrainedExecutorBackend with ExecutorBackend ：a pluggable interface used by the Executor to send updates to the cluster scheduler. 一个可插拔式的接口，被用于Executor向集群调度发送更新状态信息  
-DriverEndpoint  
+CoarseGrainedExecutorBackend with ExecutorBackend ：a pluggable interface used by the Executor to send updates to the cluster scheduler. 一个可插拔式的接口，被用于Executor向集群调度发送更新状态信息
+DriverEndpoint
 ClientEndpoint
 
 ---

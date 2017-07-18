@@ -277,7 +277,7 @@ private[spark] class TaskSchedulerImpl(
    * that tasks are balanced across the cluster.
    */
   def resourceOffers(offers: Seq[WorkerOffer]): Seq[Seq[TaskDescription]] = synchronized {
-    // Mark each slave as alive and remember its hostname    
+    // Mark each slave as alive and remember its hostname
     // Also track if new executor is added
     // 标记每个活着的slave节点，并且记住它的hostname，以及记录新添加的executor
     var newExecAvail = false
