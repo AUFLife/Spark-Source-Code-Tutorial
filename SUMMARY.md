@@ -11,6 +11,7 @@
   * [.4 TaskScheduler](spark-scheduler/.-taskscheduler.md)
     * [TaskScheduler-Source](spark-scheduler/.-taskscheduler/taskscheduler-source.md)
   * [.5 Scheduler Strategy](spark-scheduler/.scheduler-strategy.md)
+  * [.6 Executor](executor.md)
 * [3. Shuffle](shuffle.md)
 * [4. Storage](storage.md)
 * [5. I/O](io.md)
