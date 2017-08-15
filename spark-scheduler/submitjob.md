@@ -22,9 +22,9 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224191355445-1507007778.png)
 
-1. Stage划分的依据就是`宽依赖`，从后往前推，遇到宽依赖，就划分为一个stage。
+2. Stage划分的依据就是`宽依赖`，从后往前推，遇到宽依赖，就划分为一个stage。
 
-2. 由Action操作（例如collect）导致了SparkContext.runJob最终导致了DAGScheduler中submitJob的执行
+3. 由Action操作（例如collect）导致了SparkContext.runJob最终导致了DAGScheduler中submitJob的执行
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185032366-2008839481.png)
 
@@ -150,9 +150,9 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224191355445-1507007778.png)
 
-1. Stage划分的依据就是`宽依赖`，从后往前推，遇到宽依赖，就划分为一个stage。
+2. Stage划分的依据就是`宽依赖`，从后往前推，遇到宽依赖，就划分为一个stage。
 
-2. 由Action操作（例如collect）导致了SparkContext.runJob最终导致了DAGScheduler中submitJob的执行
+3. 由Action操作（例如collect）导致了SparkContext.runJob最终导致了DAGScheduler中submitJob的执行
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185032366-2008839481.png)
 
