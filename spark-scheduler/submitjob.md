@@ -15,7 +15,9 @@ Spark布置环境中组件构成如下图所示。
 
 在集群\(cluster\)方式下, Cluster Manager运行在一个**jvm**进程之中，而worker运行在另一个**jvm**进程中。在local cluster中，这些jvm进程都在同一台机器中，如果是真正的standalone或Mesos及Yarn集群，worker与master或分布于不同的主机之上。
 
-### JOB的生成和运行
+### Job Stage划分算法
+
+1. Spark Application中可以为不同的Action触发众
 
 job的生成的简单流程如下：
 
@@ -59,6 +61,7 @@ job的生成的简单流程如下：
     ```
 
   * SparkDeploySchedulerBackend：见TaskScheduler
+
   * YarnSchedulerBackend: 见TaskScheduler
 
 说了这么一大通，也就是讲最终的逻辑处理切切实实是发生在TaskRunner这么一个executor之内。
