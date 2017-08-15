@@ -22,8 +22,6 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224191355445-1507007778.png)
 
-
-
 1. Stage划分的依据就是`宽依赖`，从后往前推，遇到宽依赖，就划分为一个stage。
 
 2. 由Action操作（例如collect）导致了SparkContext.runJob最终导致了DAGScheduler中submitJob的执行
@@ -34,15 +32,13 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185451757-986646851.png)
 
+#### DagScheduler:
 
+![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185553491-27783972.png)
 
-   #### DagScheduler:
+这里会等待作业提交的结果，然后判断成功或失败来进行下一步操作。
 
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185553491-27783972.png)
-
-   这里会等待作业提交的结果，然后判断成功或失败来进行下一步操作。
-
-3. 其核心是通过发送一个case class JobSubmitted 对象给eventProcessLoop
+1. 其核心是通过发送一个case class JobSubmitted 对象给eventProcessLoop
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185800820-484469795.png)
 
@@ -50,7 +46,7 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185843070-1669082775.png)
 
-4. 这里单独开了一条线程，以post的方式把消息放在队列中，由于你把它放在队列中它就会不断的去拿消息并进行处理，而后调用回掉函数onReceive\(\)， eventProcessLoop是一个消息循环器，它是DAGScheduler的具体实例，eventLoop是一个Link的blockQueue。
+2. 这里单独开了一条线程，以post的方式把消息放在队列中，由于你把它放在队列中它就会不断的去拿消息并进行处理，而后调用回掉函数onReceive\(\)， eventProcessLoop是一个消息循环器，它是DAGScheduler的具体实例，eventLoop是一个Link的blockQueue。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185916304-1558055593.png)
 
@@ -60,7 +56,7 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224190126179-2052311278.png)
 
-5. 在doOnReceive这个类中有接收JobSubmitted的判断，进而调用handleJobSubmitted 方法
+3. 在doOnReceive这个类中有接收JobSubmitted的判断，进而调用handleJobSubmitted 方法
 
 思考题：为什么要再打开一条线程搞一个消息循环器呢，因为队列可以接受多个作业提交即异步处理多job，这里背后有一个很重要的概念，就是无论是你自己发消息，还是别人发消息，你都采用一个线程处理的话，这个处理的方式是统一的，思路是清晰的。
 
@@ -132,7 +128,6 @@ ShuffleMapTask，ResultTask计算结果的传递
 
   * 根据返回的结果调用BlockManager.getMultiple获取真正的数据
 
-  
 部署过程详解{\#24}
 
 Spark布置环境中组件构成如下图所示。
@@ -155,8 +150,6 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224191355445-1507007778.png)
 
-
-
 1. Stage划分的依据就是`宽依赖`，从后往前推，遇到宽依赖，就划分为一个stage。
 
 2. 由Action操作（例如collect）导致了SparkContext.runJob最终导致了DAGScheduler中submitJob的执行
@@ -167,15 +160,13 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185451757-986646851.png)
 
+#### DagScheduler:
 
+![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185553491-27783972.png)
 
-   #### DagScheduler:
+这里会等待作业提交的结果，然后判断成功或失败来进行下一步操作。
 
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185553491-27783972.png)
-
-   这里会等待作业提交的结果，然后判断成功或失败来进行下一步操作。
-
-3. 其核心是通过发送一个case class JobSubmitted 对象给eventProcessLoop
+1. 其核心是通过发送一个case class JobSubmitted 对象给eventProcessLoop
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185800820-484469795.png)
 
@@ -183,7 +174,7 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185843070-1669082775.png)
 
-4. 这里单独开了一条线程，以post的方式把消息放在队列中，由于你把它放在队列中它就会不断的去拿消息并进行处理，而后调用回掉函数onReceive\(\)， eventProcessLoop是一个消息循环器，它是DAGScheduler的具体实例，eventLoop是一个Link的blockQueue。
+2. 这里单独开了一条线程，以post的方式把消息放在队列中，由于你把它放在队列中它就会不断的去拿消息并进行处理，而后调用回掉函数onReceive\(\)， eventProcessLoop是一个消息循环器，它是DAGScheduler的具体实例，eventLoop是一个Link的blockQueue。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224185916304-1558055593.png)
 
@@ -193,7 +184,7 @@ Spark布置环境中组件构成如下图所示。
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224190126179-2052311278.png)
 
-5. 在doOnReceive这个类中有接收JobSubmitted的判断，进而调用handleJobSubmitted 方法
+3. 在doOnReceive这个类中有接收JobSubmitted的判断，进而调用handleJobSubmitted 方法
 
 思考题：为什么要再打开一条线程搞一个消息循环器呢，因为队列可以接受多个作业提交即异步处理多job，这里背后有一个很重要的概念，就是无论是你自己发消息，还是别人发消息，你都采用一个线程处理的话，这个处理的方式是统一的，思路是清晰的。
 
@@ -265,6 +256,5 @@ ShuffleMapTask，ResultTask计算结果的传递
 
   * 根据返回的结果调用BlockManager.getMultiple获取真正的数据
 
-  
 
 
