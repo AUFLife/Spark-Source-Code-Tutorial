@@ -106,8 +106,6 @@ Yarn来负责计算资源的调度和监控，根据监控结果重启失效的t
 
 2. 动态view即life of a job，每一个job又分为多个stage，每一个stage又包含多个rdd及transformation，这些stage又是如何映射成为task被distributed到cluster中。
 
-
-
 ## 参考资料（reference）
 
 * [Introduction to Spark Internals](http://files.meetup.com/3138542/dev-meetup-dec-2012.pptx)
