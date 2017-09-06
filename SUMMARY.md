@@ -11,9 +11,10 @@
     * [DAGScheduler-Source](spark-scheduler/.-dagscheduler/dagscheduler-source.md)
   * [.4 TaskScheduler](spark-scheduler/.-taskscheduler.md)
     * [TaskScheduler-Source](spark-scheduler/.-taskscheduler/taskscheduler-source.md)
-  * [.6 Scheduler Strategy](spark-scheduler/.scheduler-strategy.md)
-  * [.7 Executor](executor.md)
-  * [.5 Run Task](runtask.md)
+  * .5 TaskSchedulerImpl
+  * [.6 Run Task](runtask.md)
+  * [.7 Scheduler Strategy](spark-scheduler/.scheduler-strategy.md)
+  * [.8 Executor](executor.md)
 * [3. Shuffle](shuffle.md)
 * [4. Storage](storage.md)
 * [5. I/O](io.md)
