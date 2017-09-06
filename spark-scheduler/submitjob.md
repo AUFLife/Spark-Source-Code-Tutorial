@@ -16,7 +16,7 @@ Spark布置环境中组件构成如下图所示。
 
 在集群\(cluster\)方式下, Cluster Manager运行在一个**jvm**进程之中，而worker运行在另一个**jvm**进程中。在local cluster中，这些jvm进程都在同一台机器中，如果是真正的standalone或Mesos及Yarn集群，worker与master或分布于不同的主机之上。
 
-### J\# ob Stage划分算法
+### Job Stage划分算法
 
 1. Spark Application中可以因为不同的Action触发众多的Job，也就是一个Application中可以有很多Job，每个Job是由一个或多个Stage构成的，后面的Stage依赖前面的Stage；也就是说只有前面依赖的Stage计算完毕后，后面的Stage才会运行；
 
