@@ -18,7 +18,7 @@
 * [3. Shuffle](shuffle.md)
 * [4. Storage](storage.md)
   * [.1 BlockManager](storage/1-blockmanager.md)
-  * .2 CacheManager
+  * [.2 CacheManager](storage/2-cachemanager.md)
 * [5. I/O](io.md)
 * [6. communication](communication.md)
 
