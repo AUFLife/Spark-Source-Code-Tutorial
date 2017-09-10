@@ -2,7 +2,7 @@
 
 它们两者之间的关系是一个是高层调度器、一个底层调度器；一个负责Stage的划分、一个是负责把任务发送给Executor去执行并接受运行结果。
 
-`应用程序的资源分配在应用程序启动时已经完成，现在要考虑的是具体应用程序中每个人物到底要运行在那个ExecutorBakend上，现在是任务的分配。`TaskScheduler要负责为Task分配计算资源：此时程序已经分配好集群中的计算资源了，然后会根据计算本地性原则来确定Task具体要运行在哪个ExecutorBackend中：
+**应用程序的资源分配在应用程序启动时已经完成，现在要考虑的是具体应用程序中每个人物到底要运行在那个ExecutorBakend上，现在是任务的分配。**TaskScheduler要负责为Task分配计算资源：此时程序已经分配好集群中的计算资源了，然后会根据计算本地性原则来确定Task具体要运行在哪个ExecutorBackend中：
 
 * 这里会有两种不同的Task，一种是ShuffleMapTask，一种是ResultMapTask
 
