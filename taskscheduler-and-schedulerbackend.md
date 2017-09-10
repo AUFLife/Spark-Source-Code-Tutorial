@@ -90,17 +90,17 @@
 
   \[下图是CoarseGrainedSchedulerBackend.scala中makerOffers方法\]![img](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170228234849766-1238435383.png)
 
-  [下图是WorkerOffer.scala中WorkerOffer case class]
+  \[下图是WorkerOffer.scala中WorkerOffer case class\]
 
   ![img](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170228235054657-1649519559.png)
 
 * 而确定Task具体运行在那个ExecutorBackend上的算法是由TaskSetManager的resourceOffer的方法决定。TaskSchedulerImpl.resourceOffers: 为每个Task具体分配计算资源，输入是ExecutorBackend及其上可用的Cores，输出TaskDescription的二位数组，在其中确定了每个Task具体运行在哪个ExecutorBackend: resourceOffers到底是如何确定Task具体运行在哪个ExecutorBackend上的呢？算法的实现具体如下：
 
-  [下图是shiTaskSchedulerImpl.scala中resourceOffers方法]
+  \[下图是shiTaskSchedulerImpl.scala中resourceOffers方法\]
 
   ![img](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170228235604766-270097176.png)
 
-  [下图是TaskSchedulerImpl.scala中resourceOffers方法内部具体的实现]
+  \[下图是TaskSchedulerImpl.scala中resourceOffers方法内部具体的实现\]
 
   ![img](http://images2015.cnblogs.com/blog/1005794/201703/1005794-20170301000603501-1071226359.png)
 
@@ -112,47 +112,35 @@
 
   * 如果有新的ExecutorBackend分配给我们的Job此时会调用ExecutorAdded来获得最新的完整的可用计算资源。
 
-    [下图是TaskSetManager.scala中executorAdded方法]
+    \[下图是TaskSetManager.scala中executorAdded方法\]
 
     ![img](http://images2015.cnblogs.com/blog/1005794/201703/1005794-20170301001059345-726852886.png)
 
-* 优先本地性从高到低依次为：PROCESS_LOCAL、NODE_LOCAL、NO_PREF、RACK_LOCAL、ANY. 其中 NO_PREF 是指机器本地性。一台机器通常就只有一个 Node。我们追求的是 Node 的本地性高于机器本地性。每个 Task 默认是采用一个线程进行计算的。
+* 优先本地性从高到低依次为：PROCESS\_LOCAL、NODE\_LOCAL、NO\_PREF、RACK\_LOCAL、ANY. 其中 NO\_PREF 是指机器本地性。一台机器通常就只有一个 Node。我们追求的是 Node 的本地性高于机器本地性。每个 Task 默认是采用一个线程进行计算的。
 
-  [下图是TaskSetManager.scala中computeValidLocalityLevels方法]
+  \[下图是TaskSetManager.scala中computeValidLocalityLevels方法\]
 
   ![img](C:\Users\user\Desktop/1005794-20170301001553345-1912498685.png)
 
 * 从 TaskSchedulerImpl.scala 中的 resourceOffers 后续调用了resourceOfferSignleTask来确定了任务具体运行在哪台机器上
 
-  [下图是 TaskSchedulerImpl.scala 中 resourceOfferSingleTask 方法]
+  \[下图是 TaskSchedulerImpl.scala 中 resourceOfferSingleTask 方法\]
 
-  ![img](![img](C:\Users\user\Desktop/1005794-20170305202404063-119390861.png)
+  !\[img\]\(![img](C:\Users\user\Desktop/1005794-20170305202404063-119390861.png)
 
 * 通过调用TaskSetManager的resourceOffer最终确定每个Task具体执行在哪个ExecutorBackend的具体Locality Level
 
 * 在第7步调用makeOffers方法后，再通过lanuchTasks把任务发送给ExecutorBackend去执行
 
-  [下图是 CoarseGrainedSchedulerBackend.scala 中 launchTasks 方法]
+  \[下图是 CoarseGrainedSchedulerBackend.scala 中 launchTasks 方法\]  
   ![img](C:\Users\user\Desktop/1005794-20170305202938001-649565212.png)
 
 * DAGScheduler是从数据层面考虑preferredLocation的，而TaskScheduler是从具体计算Task的角度考虑计算的本地性。Task进行广播的时候AkkaFrameSize大小是128MB，这样的好处是可以guan广播大任务。如果任务大于等于128MB-200K的话则Task会直接被丢弃。如果小于128MB-200K会通过CoarseGrainedBackend去lanuchTask 到具体的ExecutorBackend上。
 
-  [下图是 CoarseGrainedSchedulerBackend.scala 中 akkaFrameSize 变量]
-  ![img](http://images2015.cnblogs.com/blog/1005794/201703/1005794-20170305202833516-217942770.png)
-  [下图是 AkkaUtils.scala 中 maxFrameSizeBytes 方法]
+  \[下图是 CoarseGrainedSchedulerBackend.scala 中 akkaFrameSize 变量\]  
+  ![img](http://images2015.cnblogs.com/blog/1005794/201703/1005794-20170305202833516-217942770.png)  
+  \[下图是 AkkaUtils.scala 中 maxFrameSizeBytes 方法\]  
   ![img](http://images2015.cnblogs.com/blog/1005794/201703/1005794-20170301002652329-1362568171.png)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
