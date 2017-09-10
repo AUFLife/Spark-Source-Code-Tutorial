@@ -30,7 +30,22 @@
 
   \[下图是TaskSchedulerImpl中initialize方法\]
 
-      
+```
+  def initialize(backend: SchedulerBackend) {
+      this.backend = backend
+      // temporarily set rootPool name to empty
+      rootPool = new Pool("", schedulingMode, 0, 0)
+      schedulableBuilder = {
+        schedulingMode match {
+          case SchedulingMode.FIFO =>
+            new FIFOSchedulableBuilder(rootPool)
+          case SchedulingMode.FAIR =>
+            new FairSchedulableBuilder(rootPool, conf)
+        }
+      }
+      schedulableBuilder.buildPools()
+  }
+```
 
 * 从第3步submitTask方法中最后调用了backend.reviveOffers方法。这是CoarseGrainedSchedulerBackend.reviveOffers：给DriverEndpoint发送Reviveoffers，DriverEndPoint是驱动程序的调度器：
 
