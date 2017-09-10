@@ -17,6 +17,8 @@
   * [.8 Executor](executor.md)
 * [3. Shuffle](shuffle.md)
 * [4. Storage](storage.md)
+  * [.1 BlockManager](storage/1-blockmanager.md)
+  * .2 CacheManager
 * [5. I/O](io.md)
 * [6. communication](communication.md)
 
