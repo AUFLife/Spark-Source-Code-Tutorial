@@ -16,6 +16,7 @@
   * [.7 Scheduler Strategy](spark-scheduler/.scheduler-strategy.md)
   * [.8 Executor](executor.md)
 * [3. Shuffle](shuffle.md)
+  * [Sort-Based Shuffle](shuffle/sort-based-shuffle.md)
 * [4. Storage](storage.md)
   * [.1 BlockManager](storage/1-blockmanager.md)
   * [.2 CacheManager](storage/2-cachemanager.md)
