@@ -72,45 +72,23 @@ handleJobSubmitted\(\) -&gt;
 
    ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224190801304-937514731.png)
 
-   如果之前没有visited就把rdd放在visited的数据结构中，然后判断一下它的依赖关系，如果是宽依赖的话就新增一个Stage
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224190816460-124976008.png)
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224190944163-1185239540.png)
-
-   因此可以发现，Stage划分是由当前触发runJob的Action操作开始，从后向前递归进行计数的过程
+   如果之前没有visited就把rdd放在visited的数据结构中，然后判断一下它的依赖关系，如果是宽依赖的话就新增一个Stage![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224190816460-124976008.png)![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224190944163-1185239540.png)因此可以发现，Stage划分是由当前触发runJob的Action操作开始，从后向前递归进行计数的过程
 
 ### 处理missingParent
 
-1. 处理missingParent
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224195521648-756781612.png)
+1. 处理missingParent![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224195521648-756781612.png)
 
 ### Task 最佳位置算法实现
 
-1. 从submitMissingTask开始找出它的数据本地算法
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224210817366-759206972.png)
+1. 从submitMissingTask开始找出它的数据本地算法![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224210817366-759206972.png)
 
 2. 在具体算法实现时，首先会查询DAGScheduler的内存数据结构中是否存在当前partition的数据本地性的信息，如果有的话就直接返回；如果没有首先会调用rdd.getPreferredLocations。例如想让Spark运行在HBase上或者一种现在还没有直接使用的数据库上面，此时开发者需要自定义RDD，为了保证Task的数据本地性，最为关键的方法就是实现getPreferredLocations。
 
-   在获取到taskId与数据本地位置的关系后，将任务所需资源序列化。而后根据task的类型分别新建ShuffleMapStage和ResultTask
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224210903195-1359570705.png)
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224210933023-699015420.png)
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224211121538-1387083487.png)
+   在获取到taskId与数据本地位置的关系后，将任务所需资源序列化。而后根据task的类型分别新建ShuffleMapStage和ResultTask![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224210903195-1359570705.png)![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224210933023-699015420.png)![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224211121538-1387083487.png)
 
 3. DAGScheduler计算数据本地性的时候，巧妙的借助了RDD自身的getPreferredLocations中的数据，最大化的优化了效率，因为getPreferredLocations中表明了每个Partition的数据本地性，虽然当前Partition可能被persists或者是checkpoint，但是persists或者是checkpoint默认情况下肯定是和getPreferredLocations中的数据本地性是一致的，（getPreferredLocations方法就更简单了，直接调用InputSplit的getLocations方法获得所在的位置。
 
-4. ）所以这就更大的优化了Task的数据本地性算法的显现和效率的优化
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224211202523-1240376747.png)
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224211840273-1354488752.png)
-
-   ![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224212558507-1967242857.png)
+4. ）所以这就更大的优化了Task的数据本地性算法的显现和效率的优化![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224211202523-1240376747.png)![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224211840273-1354488752.png)![](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224212558507-1967242857.png)
 
 ---
 
