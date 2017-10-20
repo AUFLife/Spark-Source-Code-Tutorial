@@ -60,13 +60,13 @@ Sorted-Based Shuffle 主要是在Mapper阶段，这个跟Reducer端没有任何�
 
 ## Shuffle 中六大令人费解的问题
 
-1. **第一大问题：什么时候进行 Shuffle 的 fetch 操作？Shuffle 是在一边进行 Mapper 端 map 操作的同时，一边进行 Reducer 端的 shuffle 和 reduce 操作吗？      
+1. **第一大问题：什么时候进行 Shuffle 的 fetch 操作？Shuffle 是在一边进行 Mapper 端 map 操作的同时，一边进行 Reducer 端的 shuffle 和 reduce 操作吗？        
    **错误的观点是：Spark 是一边 Mapper 一边 Shuffle 的，而 Hadoop MapReduce 是先完成 Mapper 然后才进行 Reducer 的 Shuffle。正确的观点是 Spark 一定是先完成 Mapper 端所有的 Tasks，才会进行 Reducer 端的 Shuffle 过程。这是因为 Spark Job 是按照 Stage 线性执行的，前面的 Stage 必须执行完毕，才能够执行后面 Reducer 端的 Shuffle 过程。
 
    * 更准确来说 **Spark Shuffle 的过程是边拉取数据边进行 Aggregrate 操作的**，其实与 Hadoop MapReduce 相比其优势确实是在速度上，但是也会导致一些算法不好实现，例如求平均值等，为什么呢？因为边拉取数据边进行 Aggregrate 这个过程中，后面的Stage依赖于前面的Stage，Spark 是以 Stage 为单位进行计算的，如果里面的任务没有计算完，后面你怎么计算呢。但如果你是求和的话，它就会计算的特别快； 
    * Hadoop MapReduce 是把数据拉过来之后，然后进行计算，如果用 MapReduce 求平均值的话，它的算法就会很好实现。  
 
-2. **第二大问题：Shuffle fetch 过来的数据到底放在了那里？      
+2. **第二大问题：Shuffle fetch 过来的数据到底放在了那里？        
    **Spark 这种很**灵活地使用并行度**以及**倾向于优先使用内存**的计算模型，如果不正常地使用这些特徵的话会很容易导致 Spark 的应用程序出现 OOM 的情况，Spark 在不同的版本 fetch 过来的数据放在哪里是有不同的答案。抓过来的数据首先会放在 Reducer 端的内存缓存区中，Spark曾经有版本要求只能放在内存缓存中，其数据结构类似于 HashMap \(**AppendOnlyMap**\)，显然这个设计特别消耗内存和极易出现OOM，同时这也极大的限制了 Spark 集群的规模，现在的实现都是内存 + 磁盘的方式 \(数据结构类使用了 **ExternalAppendOnlyMap**\)，当然也可以通过调以下参数来设置只能使用内存。
 
 ```
@@ -76,7 +76,7 @@ Sorted-Based Shuffle 主要是在Mapper阶段，这个跟Reducer端没有任何�
 如果设置了这个运行模式，在生产环境下建义对内存的数据作2份备份，因为在默认情况下内存数据只有1份，它不像HDFS那样，天然有3份备份。使用 ExternalAppendOnlyMap 的方式时，如果内存占用率达到一定的临界值后会首先尝试在内存中扩大 ExternalAppendOnlyMap \(内部有实现算法\)，如果不能扩容的话才会 spill 到磁盘。
 
 1. **第三大问题：Shuffle 的数据在 Mapper 端如何存储，在 Reducer 端如何知道数据具体在那里的？**在Spark的实现上每一个Stage \(里面是 ShuffleMapTask\) 中的 Task 在 Stage 的最后一个 RDD 上一定会注册给 Driver 上的 MapOutputTrackerMaster，Mapper 通过和 MapOutputTrackerMaster 来汇报 ShuffleMapTask 具体输出数据的位置 \(具体的输出文件及内容是和 Reducer 有关的\)，Reducer 是向 Driver 中的 MapOutputTrackerMaster 请求数据的元数据信息，然后和 Mapper 所在的 Executor 进行通信。
-2. **第四大问题：竟竟从 HashShuffle 的角度来讲，我们在 Shuffle 的时候到底可以产生多少 Mapper 端的中间文件？       
+2. **第四大问题：从 HashShuffle 的角度来讲，我们在 Shuffle 的时候到底可以产生多少 Mapper 端的中间文件？         
    **这里有一个很重要的调优参数 \(_可以在 TaskSchedulerImpl.scala 中找到此参数_\)，该参数决定了 Spark 在运行时每个 Task 所需要的 Core 的个数，默认情况是1个，现在假设 spark.task.cpus=T。  
    ![img](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170227234405016-794181141.png)
 
