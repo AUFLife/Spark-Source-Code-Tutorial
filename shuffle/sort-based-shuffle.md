@@ -1,7 +1,5 @@
 # Spark 2.1.0 中 Sort-Based Shuffle 产生的内幕
 
-
-
 ## 引言
 
 在历史的发展中，为什么 Spark 最终还是选择放弃了 HashShuffle 而使用了 Sorted-Based Shuffle，而且作为后起之秀的 Tungsten-based Shuffle 它到底在什么样的背景下产生的。Tungsten-Sort Shuffle 已经并入了 Sorted-Based Shuffle，Spark 的引擎会自动识别程序需要原生的 Sorted-Based Shuffle 还是用 Tungsten-Sort Shuffle，那识别的依据是什么，其实 Spark 会检查相对的应用程序有没有 Aggregrate 的操作。文章的后续部份会介绍 Tungsten-Sort Shuffle 是如何管理内存和CPU。其实 Sorted-Based Shuffle 也有缺点，其缺点反而是它排序的特性，它强制要求数据在 Mapper 端必须要先进行排序 \(注意，这里没有说对计算结果进行排序\)，所以导致它排序的速度有点慢。而 Tungsten-Sort Shuffle 对它的排序算法进行了改进，优化了排序的速度。希望这篇文章能为读者带出以下的启发：
@@ -17,7 +15,7 @@
 
 ![img](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170224201012210-1329075052.png)
 
-第一部份是 Shuffle 的 Write；第二部份是网络的传输；第三部份就是 Shuffle 的 Read，这三大部份设置了**内存操作、磁盘IO、网络IO以及 JVM 的管理**。而这些东西影响了 Spark 应用程序在 95％以上效率的唯一原因，假设你程序代码的质素本身是非常好的情况下，你性能的95%都消耗在 Shuffle 阶段的**本地写磁盘文件\*\***，网络传输数据以及抓取数据\*\*这样的生命周期中。
+第一部份是 Shuffle 的 Write；第二部份是网络的传输；第三部份就是 Shuffle 的 Read，这三大部份涉及了**内存操作、磁盘IO、网络IO以及 JVM 的管理**。而这些东西影响了 Spark 应用程序在 95％以上效率的唯一原因，假设你程序代码的质素本身是非常好的情况下，你性能的95%都消耗在 Shuffle 阶段的**本地写磁盘文件\*\***，网络传输数据以及抓取数据\*\*这样的生命周期中。
 
 ![img](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170226143808679-702177021.png)
 
@@ -62,13 +60,13 @@ Sorted-Based Shuffle 主要是在Mapper阶段，这个跟Reducer端没有任何�
 
 ## Shuffle 中六大令人费解的问题
 
-1. **第一大问题：什么时候进行 Shuffle 的 fetch 操作？Shuffle 是在一边进行 Mapper 端 map 操作的同时，一边进行 Reducer 端的 shuffle 和 reduce 操作吗？    
+1. **第一大问题：什么时候进行 Shuffle 的 fetch 操作？Shuffle 是在一边进行 Mapper 端 map 操作的同时，一边进行 Reducer 端的 shuffle 和 reduce 操作吗？      
    **错误的观点是：Spark 是一边 Mapper 一边 Shuffle 的，而 Hadoop MapReduce 是先完成 Mapper 然后才进行 Reducer 的 Shuffle。正确的观点是 Spark 一定是先完成 Mapper 端所有的 Tasks，才会进行 Reducer 端的 Shuffle 过程。这是因为 Spark Job 是按照 Stage 线性执行的，前面的 Stage 必须执行完毕，才能够执行后面 Reducer 端的 Shuffle 过程。
 
    * 更准确来说 **Spark Shuffle 的过程是边拉取数据边进行 Aggregrate 操作的**，其实与 Hadoop MapReduce 相比其优势确实是在速度上，但是也会导致一些算法不好实现，例如求平均值等，为什么呢？因为边拉取数据边进行 Aggregrate 这个过程中，后面的Stage依赖于前面的Stage，Spark 是以 Stage 为单位进行计算的，如果里面的任务没有计算完，后面你怎么计算呢。但如果你是求和的话，它就会计算的特别快； 
    * Hadoop MapReduce 是把数据拉过来之后，然后进行计算，如果用 MapReduce 求平均值的话，它的算法就会很好实现。  
 
-2. **第二大问题：Shuffle fetch 过来的数据到底放在了那里？    
+2. **第二大问题：Shuffle fetch 过来的数据到底放在了那里？      
    **Spark 这种很**灵活地使用并行度**以及**倾向于优先使用内存**的计算模型，如果不正常地使用这些特徵的话会很容易导致 Spark 的应用程序出现 OOM 的情况，Spark 在不同的版本 fetch 过来的数据放在哪里是有不同的答案。抓过来的数据首先会放在 Reducer 端的内存缓存区中，Spark曾经有版本要求只能放在内存缓存中，其数据结构类似于 HashMap \(**AppendOnlyMap**\)，显然这个设计特别消耗内存和极易出现OOM，同时这也极大的限制了 Spark 集群的规模，现在的实现都是内存 + 磁盘的方式 \(数据结构类使用了 **ExternalAppendOnlyMap**\)，当然也可以通过调以下参数来设置只能使用内存。
 
 ```
@@ -78,7 +76,7 @@ Sorted-Based Shuffle 主要是在Mapper阶段，这个跟Reducer端没有任何�
 如果设置了这个运行模式，在生产环境下建义对内存的数据作2份备份，因为在默认情况下内存数据只有1份，它不像HDFS那样，天然有3份备份。使用 ExternalAppendOnlyMap 的方式时，如果内存占用率达到一定的临界值后会首先尝试在内存中扩大 ExternalAppendOnlyMap \(内部有实现算法\)，如果不能扩容的话才会 spill 到磁盘。
 
 1. **第三大问题：Shuffle 的数据在 Mapper 端如何存储，在 Reducer 端如何知道数据具体在那里的？**在Spark的实现上每一个Stage \(里面是 ShuffleMapTask\) 中的 Task 在 Stage 的最后一个 RDD 上一定会注册给 Driver 上的 MapOutputTrackerMaster，Mapper 通过和 MapOutputTrackerMaster 来汇报 ShuffleMapTask 具体输出数据的位置 \(具体的输出文件及内容是和 Reducer 有关的\)，Reducer 是向 Driver 中的 MapOutputTrackerMaster 请求数据的元数据信息，然后和 Mapper 所在的 Executor 进行通信。
-2. **第四大问题：竟竟从 HashShuffle 的角度来讲，我们在 Shuffle 的时候到底可以产生多少 Mapper 端的中间文件？     
+2. **第四大问题：竟竟从 HashShuffle 的角度来讲，我们在 Shuffle 的时候到底可以产生多少 Mapper 端的中间文件？       
    **这里有一个很重要的调优参数 \(_可以在 TaskSchedulerImpl.scala 中找到此参数_\)，该参数决定了 Spark 在运行时每个 Task 所需要的 Core 的个数，默认情况是1个，现在假设 spark.task.cpus=T。  
    ![img](http://images2015.cnblogs.com/blog/1005794/201702/1005794-20170227234405016-794181141.png)
 
@@ -95,7 +93,8 @@ Sorted-Based Shuffle 主要是在Mapper阶段，这个跟Reducer端没有任何�
      * Consolidated HashShuffle 会产生** \(E x \(C / T\)\) x R 个的小文件**。
 
 3. **第五大问题：Spark中Sorted-Based Shuffle 数据结果默认是排序的吗？Sorted-Based Shuffle 采用了什么的排序算法？这个排序算法的好处是什么？**  
-   Spark Sorted-Based Shuffle 在 Mapper 端是排序的，包括 partition 的排序和每个 partition 内部元素的排序！但在 Reducer 端是没有进行排序，所以 Job 的结果默认不是排序的。Sorted-Based Shuffle 采用了 Tim-Sort 排序算法，好处是可以极为高效的使用 Mapper 端的排序成果全局排序。  
+   Spark Sorted-Based Shuffle 在 Mapper 端是排序的，包括 partition 的排序和每个 partition 内部元素的排序！但在 Reducer 端是没有进行排序，所以 Job 的结果默认不是排序的。Sorted-Based Shuffle 采用了 Tim-Sort 排序算法，好处是可以极为高效的使用 Mapper 端的排序成果全局排序。
+
 4. **第六大问题：Spark Tungsten-Sorted Shuffle 在 Mapper 中会对内部元素进行\*\***排序吗？**\*\*Tungsten-Sorted Shuffle不适用于什么情况？说出具体的原因。**  
    **Tungsten-Sorted Shuffle 在 Mapper 中不会对内部元素进行排序** \(它只会对Partition进行排序\)，原因是它自己管理的二进制序列化后的数据，问题来啦：数据是进入 Buffer 时或者是进入磁盘的时才进行排序呢？答案是**数据的排序是发生在 Buffer 要满了 spill 到磁盘时才进行排序的**。所以 Tungsten-Sorted Shuffle 它对内部不会进行排序  
    Tungsten-Sorted Shuffle 什么时候会退化成为 Sorted-Based Shuffle？它是在程序有 Aggregrate 操作的时候；或者是 Mapper 端输出的 partition 大于 16777216；或者是一条 Record 大于128M的时候，原因也是因为它自己管理的二进制序列化后的数据以及数组指针管理范围。
